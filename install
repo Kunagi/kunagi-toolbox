@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+clojure -m toolbox.main
+
+cp target/toolbox ~/bin/toolbox-build

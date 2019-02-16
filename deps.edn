@@ -1,0 +1,7 @@
+{:deps {
+        clojure-term-colors       {:mvn/version "RELEASE"}
+        com.bhauman/figwheel-main {:mvn/version "RELEASE"}
+        pack/pack.alpha           {:git/url "git@github.com:juxt/pack.alpha.git"
+                                   :sha "3127f79578c565013c918231dbd1ba857aa02c8f"}}
+
+ :paths ["src"]}
