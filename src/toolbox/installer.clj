@@ -36,7 +36,7 @@ sudo chmod 770 " (-> project/info :serverapp :working-dir) "
 echo \"config-directory: " config-path "\"
 sudo mkdir -p " config-path "
 sudo cp --no-clobber configs/* " config-path "/
-sudo chmod 400 " config-secrets-path "
+sudo chmod 600 " config-secrets-path "
 sudo chown " (-> project/info :serverapp :user-name) ":root " config-secrets-path "
 "))
                     (when (-> project/info :systemd)
@@ -65,7 +65,7 @@ sudo cp `dirname $0`/" (-> project/info :systemd :unit-name) ".service /etc/syst
   (when (-> project/info :serverapp)
     (build-config-file :config {:http-server/port (-> project/info :serverapp :http-port)
                                 :http-server/uri (-> project/info :serverapp :uri)
-                                :oauth {:google {}}})
+                                :oauth {:google {:enabled false}}})
     (build-config-file :secrets {:oauth {:google {:client-id "?"
                                                   :client-secret "?"}}}))
   (build-install-script))
