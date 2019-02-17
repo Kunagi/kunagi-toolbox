@@ -64,7 +64,8 @@ sudo cp `dirname $0`/" (-> project/info :systemd :unit-name) ".service /etc/syst
   (cli/print-op "Installer Script")
   (when (-> project/info :serverapp)
     (build-config-file :config {:http-server/port (-> project/info :serverapp :http-port)
-                                :http-server/uri (-> project/info :serverapp :uri)})
-    (build-config-file :secrets {:google/oauth {:client-id "?"
-                                                :client-secret "?"}}))
+                                :http-server/uri (-> project/info :serverapp :uri)
+                                :oauth {:google {}}})
+    (build-config-file :secrets {:oauth :google {:client-id "?"
+                                                 :client-secret "?"}}))
   (build-install-script))
