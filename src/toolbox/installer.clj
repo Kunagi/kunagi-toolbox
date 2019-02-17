@@ -66,6 +66,6 @@ sudo cp `dirname $0`/" (-> project/info :systemd :unit-name) ".service /etc/syst
     (build-config-file :config {:http-server/port (-> project/info :serverapp :http-port)
                                 :http-server/uri (-> project/info :serverapp :uri)
                                 :oauth {:google {}}})
-    (build-config-file :secrets {:oauth :google {:client-id "?"
-                                                 :client-secret "?"}}))
+    (build-config-file :secrets {:oauth {:google {:client-id "?"
+                                                  :client-secret "?"}}}))
   (build-install-script))
