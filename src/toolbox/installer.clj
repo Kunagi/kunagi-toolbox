@@ -74,7 +74,7 @@ sudo certbot --nginx -n -d " vhost " run enhance
 server {
 
     server_name " vhost ";
-    port 80
+    port 80;
 
     location / {
 
