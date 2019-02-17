@@ -49,7 +49,3 @@
 
     (cli/print-created-artifact output-path)))
 
-
-(defn -main []
-  (build-uberjar!)
-  (System/exit 0))

@@ -26,7 +26,11 @@
 
 
 (defn abort-with-failure
-  []
+  [& texts]
   (println)
+  (when (seq texts)
+    (apply print texts)
+    (println)
+    (println))
   (println (c/on-red (c/white " FAILED ")))
   (System/exit 1))
