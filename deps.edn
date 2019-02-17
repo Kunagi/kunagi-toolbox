@@ -1,4 +1,6 @@
-{:aliases {:dev {:extra-deps {binaryage/devtools {:mvn/version "RELEASE"},
+{:aliases {:ancient {:extra-deps {deps-ancient {:mvn/version "RELEASE"}},
+                     :main-opts ["-m" "deps-ancient.deps-ancient"]},
+           :dev {:extra-deps {binaryage/devtools {:mvn/version "RELEASE"},
                               com.bhauman/figwheel-main {:mvn/version "RELEASE"},
                               com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}},
                  :extra-paths ["target"],
