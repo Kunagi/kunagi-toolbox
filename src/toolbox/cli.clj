@@ -1,6 +1,11 @@
 (ns toolbox.cli
   (:require
-   [clojure.term.colors :as c]))
+   [clojure.term.colors :as c]
+   [puget.printer :as puget]))
+
+
+(defn print-edn [data]
+  (puget/cprint data))
 
 
 (defn print-op

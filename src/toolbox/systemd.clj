@@ -7,54 +7,24 @@
    [toolbox.project :as project]))
 
 
-(defn unit-name []
-  (or (-> project/info :systemd :unit)
-      (:id project/info)))
-
-
-(defn user-name []
-  (or (-> project/info :systemd :user)
-      (unit-name)))
-
-
-(defn group-name []
-  (or (-> project/info :systemd :group)
-      (user-name)))
-
-
-(defn description []
-  (or (-> project/info :systemd :description)
-      (unit-name)))
-
-
-(defn working-directory []
-  (or (-> project/info :systemd :working-directory)
-      (str "/var/local/" (unit-name))))
-
-
-(defn exec-start []
-  (or (-> project/info :systemd :exec-start)
-      (str "/usr/local/bin/" (:id project/info))))
-
-
-
 (defn target-path-unitfile []
-  (str "target/systemd/" (unit-name) ".service"))
+  (str "target/systemd/" (-> project/info :systemd :unit-name) ".service"))
 
 
 (defn build-systemd-unitfile! []
   (cli/print-op "Systemd Unit File")
 
   (let [script (str "[Unit]
-Description=" (description) "
+Description=" (or (-> project/info :project :name)
+                  (-> project/info :systemd :unit-name)) "
 After=network.target
 
 [Service]
 Type=simple
-User=" (user-name) "
-Group=" (group-name) "
-WorkingDirectory=" (working-directory) "
-ExecStart=" (exec-start) "
+User=" (-> project/info :serverapp :user-name) "
+Group=" (-> project/info :serverapp :user-name) "
+WorkingDirectory=" (-> project/info :serverapp :working-dir) "
+ExecStart=" (-> project/info :serverapp :executable-path) "
 
 [Install]
 WantedBy=multi-user.target

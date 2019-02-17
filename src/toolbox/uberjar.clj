@@ -32,13 +32,20 @@
        "\n\n\n\n"))
 
 
+(defn target-path-executable []
+  (if-let [executable-name (or (-> project/info :serverapp :executable-name)
+                               (-> project/info :commandapp :executable-name))]
+    (str "target/" executable-name)))
+
+
 (defn build-executable! []
   (cli/print-op "Executable")
+
 
   (let [id (:id project/info)
         uberjar-path (str "target/" id ".jar")
         uberjar-file (java.io.File. uberjar-path)
-        output-path (str "target/" id)
+        output-path (target-path-executable)
         output-file (java.io.File. output-path)
         output-stream (java.io.FileOutputStream. output-file true)]
 
