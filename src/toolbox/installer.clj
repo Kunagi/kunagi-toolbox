@@ -100,7 +100,7 @@ server {
 
 
 (defn build-installer! []
-  (cli/print-op "Installer Script")
+  (cli/print-op "Installer")
   (when (-> project/info :serverapp)
     (build-config-file :config {:http-server/port (-> project/info :serverapp :http-port)
                                 :http-server/uri (-> project/info :serverapp :uri)

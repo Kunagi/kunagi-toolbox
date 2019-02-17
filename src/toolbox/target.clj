@@ -18,5 +18,5 @@
 
 (defn clean! []
   (cli/print-op "Cleanup")
-  (let [path "target"]
-    (-> path java.io.File. delete-file)))
+  (-> "target" java.io.File. delete-file)
+  (-> ".cpcache" java.io.File. delete-file))

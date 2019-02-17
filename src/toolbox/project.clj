@@ -105,8 +105,7 @@
       (load-conf :browserapp [])
       (load-conf :systemd [])
       (complete-systemd)
-      (load-conf :release [])
-      (print-info)))
+      (load-conf :release [])))
 
 
 (def info (create-info))

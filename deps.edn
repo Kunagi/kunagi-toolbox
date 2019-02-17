@@ -1,5 +1,6 @@
 {:deps {
         org.clojure/clojure       {:mvn/version "RELEASE"}
+        org.clojure/tools.cli     {:mvn/version "RELEASE"}
         clojure-term-colors       {:mvn/version "RELEASE"}
         mvxcvi/puget              {:mvn/version "RELEASE"}
         pack/pack.alpha           {:git/url "git@github.com:juxt/pack.alpha.git"
