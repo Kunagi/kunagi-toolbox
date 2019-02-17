@@ -53,8 +53,10 @@
           executable-path (str "/usr/local/bin/" executable-name)
           http-port (or (-> serverapp :http-port)
                         3000)
-          uri (or (-> serverapp :uri)
-                  (str "httpp://localhost:" http-port))]
+          vhost (-> serverapp :vhost)
+          uri (if vhost
+                (str "https://" vhost)
+                (str "http://localhost:" http-port))]
       (assoc info :serverapp (merge serverapp
                                     {:executable-name executable-name
                                      :user-name user-name

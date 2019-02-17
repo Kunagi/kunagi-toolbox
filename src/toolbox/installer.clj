@@ -40,14 +40,53 @@ sudo chmod 600 " config-secrets-path "
 sudo chown " (-> project/info :serverapp :user-name) ":root " config-secrets-path "
 "))
                     (when (-> project/info :systemd)
-                      (str "
+                      (let [unit-name (-> project/info :systemd :unit-name)]
+                        (str "
 # systemd
-echo \"systemd: " (-> project/info :systemd :unit-name) ".service\"
-sudo cp `dirname $0`/" (-> project/info :systemd :unit-name) ".service /etc/systemd/system/
-")))]
-
+echo \"systemd: " unit-name ".service\"
+sudo cp `dirname $0`/" unit-name ".service /etc/systemd/system/
+sudo systemctl enable " unit-name ".service
+sudo systemctl start " unit-name ".service
+")))
+                    (when (-> project/info :serverapp :vhost)
+                      (let [vhost (-> project/info :serverapp :vhost)
+                            sites-available (str "/etc/nginx/sites-available/" vhost)
+                            sites-enabled (str "/etc/nginx/sites-enabled/" vhost)]
+                        (str "
+# nginx
+sudo --no-clobber cp `dirname $0`/nginx-vhost " sites-available "
+sudo ln -s " sites-available " " sites-enabled "
+sudo systemctl reload nginx
+sudo certbot --nginx -n -d " vhost " run enhance
+"))))]
 
     (spit file script)
+    (.setExecutable file true false)
+    (cli/print-created-artifact path)))
+
+
+(defn build-nginx-config []
+  (let [vhost (-> project/info :serverapp :vhost)
+        port (-> project/info :serverapp :http-port)
+        path (str "target/nginx-vhost")
+        file (io/as-file path)
+        content (str "
+server {
+
+    server_name " vhost ";
+    port 80
+
+    location / {
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_pass http://localhost:" port ";
+
+    }
+
+}
+")]
+    (spit file content)
     (.setExecutable file true false)
     (cli/print-created-artifact path)))
 
@@ -68,4 +107,6 @@ sudo cp `dirname $0`/" (-> project/info :systemd :unit-name) ".service /etc/syst
                                 :oauth {:google {:enabled false}}})
     (build-config-file :secrets {:oauth {:google {:client-id "?"
                                                   :client-secret "?"}}}))
+  (when (-> project/info :serverapp :vhost)
+    (build-nginx-config))
   (build-install-script))

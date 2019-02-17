@@ -56,6 +56,10 @@
         (copy-target (str "systemd/" unit-name ".service")
                      (str unit-name ".service"))))
 
+    (when (-> project/info :serverapp :vhost)
+      (copy-target "nginx-vhost"))
+                   "nginx-vhost"
+
     (copy-dir "configs")
 
     (copy-target "install.bsh"
