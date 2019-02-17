@@ -20,7 +20,7 @@
         script (str "#!/bin/bash -e
 
 # bin
-sudo cp -v " (:id project/info) " /usr/local/bin/
+sudo cp -v `dirname $0`/" (:id project/info) " /usr/local/bin/
 "
                     (when (-> project/info :systemd)
                       (str "
@@ -28,7 +28,7 @@ sudo cp -v " (:id project/info) " /usr/local/bin/
 sudo adduser " (systemd/user-name) "
 sudo mkdir -pv " (systemd/working-directory) "
 sudo chown " (systemd/working-directory) " " (systemd/user-name) ":" (systemd/group-name) "
-sudo cp -v " (systemd/unit-name) ".service /etc/systemd/system/")))]
+sudo cp -v `dirname $0`/" (systemd/unit-name) ".service /etc/systemd/system/")))]
 
     (spit file script)
     (.setExecutable file true false)
