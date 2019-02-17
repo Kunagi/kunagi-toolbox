@@ -54,7 +54,7 @@ sudo systemctl start " unit-name ".service
                             sites-enabled (str "/etc/nginx/sites-enabled/" vhost)]
                         (str "
 # nginx
-sudo --no-clobber cp `dirname $0`/nginx-vhost " sites-available "
+sudo cp --no-clobber `dirname $0`/nginx-vhost " sites-available "
 sudo ln -s " sites-available " " sites-enabled "
 sudo systemctl reload nginx
 sudo certbot --nginx -n -d " vhost " run enhance
@@ -104,7 +104,7 @@ server {
   (when (-> project/info :serverapp)
     (build-config-file :config {:http-server/port (-> project/info :serverapp :http-port)
                                 :http-server/uri (-> project/info :serverapp :uri)
-                                :oauth {:google {:enabled false}}})
+                                :oauth {:google {:enabled? false}}})
     (build-config-file :secrets {:oauth {:google {:client-id "?"
                                                   :client-secret "?"}}}))
   (when (-> project/info :serverapp :vhost)

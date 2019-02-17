@@ -3,6 +3,7 @@
    [clojure.string :as string]
    [toolbox.cli :as cli]
    [toolbox.project :as project]
+   [toolbox.configuration :as configuration]
    [toolbox.target :as target]
    [toolbox.browserapp :as browserapp]
    [toolbox.uberjar :as uberjar]
@@ -11,8 +12,12 @@
    [toolbox.release :as release]))
 
 
-(defn conf! []
+(defn info! []
   (project/print-info project/info))
+
+
+(defn configure! []
+  (configuration/configure!))
 
 
 (defn clean! []
@@ -54,10 +59,11 @@
         options-summary
         ""
         "Actions:"
-        "  conf     Show configuration"
-        "  clean    Delete target and .cpcache"
-        "  build    Build project artifacts"
-        "  release  Build and release project artifacts"
+        "  info        Show project information"
+        "  configure   Generate project configuration"
+        "  clean       Delete target and .cpcache"
+        "  build       Build project artifacts"
+        "  release     Build and release project artifacts"
         ""
         "This probram must be run in a compatible Kunagi project directory."]
        (string/join \newline)))
@@ -78,7 +84,7 @@
       {:exit-message (error-msg errors)}
       ;; custom validation on arguments
       (and (= 1 (count arguments))
-           (#{"conf" "clean" "build" "release"} (first arguments)))
+           (#{"info" "configure" "clean" "build" "release"} (first arguments)))
       {:action (first arguments) :options options}
       :else ; failed custom validation => exit with usage summary
       {:exit-message (usage summary)})))
@@ -95,7 +101,8 @@
       (exit (if ok? 0 1) exit-message)
       (try
         (case action
-          "conf" (conf!)
+          "info" (info!)
+          "configure" (configure!)
           "clean" (clean!)
           "build" (build!)
           "release" (release!))

@@ -23,7 +23,7 @@
 
     (if-not (.exists file)
       info
-      (let [data (load-edn file) ]
+      (let [data (load-edn file)]
 
         (doseq [mandatory-key mandatory-keys]
           (when-not (get data mandatory-key)
@@ -84,6 +84,16 @@
                                      {:executable-name executable-name})))))
 
 
+(defn complete-browserapp [info]
+  (if-not (:browserapp info)
+    info
+    (let [browserapp (:browserapp info)
+          js-optimizations (or (:js-optimizations browserapp)
+                               :simple)]
+      (assoc info :browserapp (merge browserapp
+                                     {:js-optimizations js-optimizations})))))
+
+
 (defn complete-systemd [info]
   (if-not (:systemd info)
     info
@@ -92,6 +102,32 @@
                         (:id info))]
       (assoc info :systemd (merge systemd
                                   {:unit-name unit-name})))))
+
+
+(defn complete-foreign-deps [deps info]
+  (cond-> deps
+
+          (not (get deps 'org.clojure/clojure))
+          (assoc 'org.clojure/clojure {:mvn/version "1.10.0"})
+
+          (and (-> info :browserapp)
+               (not (get deps 'org.clojure/clojurescript)))
+          (assoc 'org.clojure/clojurescript {:mvn/version "1.10.520"})))
+
+
+(defn complete-deps [info]
+  (let [deps (:deps info)
+        paths (or (:paths deps)
+                  (if (-> "resources" java.io.File. .exists)
+                    ["src" "resources"]
+                    ["src"]))
+        foreign (complete-foreign-deps (:foreign deps) info)
+        own (:own deps)]
+    (-> info
+        (assoc-in [:deps :foreign] foreign)
+        (assoc-in [:deps :own] own)
+        (assoc-in [:deps :paths] paths))))
+
 
 (defn create-info []
   (-> {}
@@ -103,9 +139,11 @@
       (load-conf :serverapp [])
       (complete-serverapp)
       (load-conf :browserapp [])
+      (complete-browserapp)
       (load-conf :systemd [])
       (complete-systemd)
-      (load-conf :release [])))
-
+      (load-conf :release [])
+      (load-conf :deps [:own :foreign])
+      (complete-deps)))
 
 (def info (create-info))

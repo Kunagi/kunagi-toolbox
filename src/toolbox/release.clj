@@ -35,6 +35,7 @@
         src-file (io/as-file src-path)
         dst-path (str "/release-targets/apps/" id "/development/" dst-path)
         dst-file (io/as-file dst-path)]
+    (-> src-file .getParentFile .mkdirs)
     (io/copy src-file dst-file)
     (when (.canExecute src-file)
       (.setExecutable dst-file true false))

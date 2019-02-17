@@ -10,7 +10,7 @@
 (defn build-browserapp! []
   (cli/print-op "Figwheel JavaScript Compilation")
 
-  (let [result (shell/sh "clojure" "-A:build-js")]
+  (let [result (shell/sh "clojure" "-A:prod-js")]
     (println)
     (println (:out result))
     (println (:err result))
