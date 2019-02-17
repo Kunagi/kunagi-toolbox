@@ -57,8 +57,8 @@
                      (str unit-name ".service"))))
 
     (when (-> project/info :serverapp :vhost)
-      (copy-target "nginx-vhost"))
-                   "nginx-vhost"
+      (copy-target "nginx-vhost"
+                   "nginx-vhost"))
 
     (copy-dir "configs")
 

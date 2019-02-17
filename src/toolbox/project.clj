@@ -6,6 +6,13 @@
    [toolbox.cli :as cli]))
 
 
+(defn load-edn [file]
+  (try
+    (edn/read-string (slurp file))
+    (catch Exception ex
+      (cli/abort-with-failure "Failed to read conf file:" (.getPath file)))))
+
+
 (defn load-conf [info conf-key mandatory-keys]
   (let [path (str "conf/" (name conf-key) ".edn")
         file (io/as-file path)]
@@ -16,7 +23,7 @@
 
     (if-not (.exists file)
       info
-      (let [data (edn/read-string (slurp file))]
+      (let [data (load-edn file) ]
 
         (doseq [mandatory-key mandatory-keys]
           (when-not (get data mandatory-key)
