@@ -95,8 +95,8 @@ clojure -A:dev
   (let [file (io/as-file "dev.cljs.edn")
         figwheel-meta {:watch-dirs (into ["src"]
                                          (extra-paths-from-own-deps))
-                       :open-file-command "emacsclient"
-                       :launch-js ["google-chrome" :open-url]}
+                       :open-file-command "emacsclient"}
+                       ;;:launch-js ["google-chrome" :open-url]}
         figwheel-meta (if (-> project/info :serverapp)
                         (assoc figwheel-meta
                                :ring-handler
