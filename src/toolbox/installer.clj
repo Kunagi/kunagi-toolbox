@@ -54,7 +54,7 @@ sudo systemctl restart " unit-name ".service
                             sites-enabled (str "/etc/nginx/sites-enabled/" vhost)]
                         (str "
 # nginx
-echo \"nginx: " sites-available "
+echo \"nginx: " sites-available "\"
 sudo cp --no-clobber `dirname $0`/nginx-vhost " sites-available "
 sudo ln -s --force " sites-available " " sites-enabled "
 sudo systemctl reload nginx
