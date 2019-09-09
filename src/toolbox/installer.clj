@@ -58,7 +58,7 @@ echo \"nginx: " sites-available "\"
 sudo cp --no-clobber `dirname $0`/nginx-vhost " sites-available "
 sudo ln -s --force " sites-available " " sites-enabled "
 sudo systemctl reload nginx
-sudo certbot --nginx -n -d " vhost " run enhance
+# sudo certbot --nginx -n -d " vhost " run
 "))))]
 
     (spit file script)
