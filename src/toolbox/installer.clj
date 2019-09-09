@@ -45,8 +45,8 @@ sudo chown " (-> project/info :serverapp :user-name) ":root " config-secrets-pat
 # systemd
 echo \"systemd: " unit-name ".service\"
 sudo cp `dirname $0`/" unit-name ".service /etc/systemd/system/
-sudo systemctl enable " unit-name ".service
-sudo systemctl start " unit-name ".service
+sudo systemctl enable --force " unit-name ".service
+sudo systemctl restart " unit-name ".service
 ")))
                     (when (-> project/info :serverapp :vhost)
                       (let [vhost (-> project/info :serverapp :vhost)
