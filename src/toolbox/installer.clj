@@ -54,8 +54,9 @@ sudo systemctl restart " unit-name ".service
                             sites-enabled (str "/etc/nginx/sites-enabled/" vhost)]
                         (str "
 # nginx
+echo \"nginx: " sites-avilable "
 sudo cp --no-clobber `dirname $0`/nginx-vhost " sites-available "
-sudo ln -s " sites-available " " sites-enabled "
+sudo ln -s --force " sites-available " " sites-enabled "
 sudo systemctl reload nginx
 sudo certbot --nginx -n -d " vhost " run enhance
 "))))]
