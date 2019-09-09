@@ -57,7 +57,6 @@
 
           (-> project/info :browserapp)
           (assoc :prod-js {:main-opts ["--main"          "figwheel.main"
-                                       "--optimizations" (-> project/info :browserapp :js-optimizations name)
                                        "--build-once"    "prod"]
                            :extra-deps {'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}})))
 
@@ -104,7 +103,9 @@ clojure -A:dev
                                        "ring-handler-for-figwheel"))
                         figwheel-meta)
         configuration {:main (symbol (str (-> project/info :id) ".figwheel-adapter"))
-                       :preloads ['devtools.preload]}]
+                       :optimizations :none
+                       :preloads ['devtools.preload]
+                       :closure-defines {}}]
     (spit file (str "^" (puget/pprint-str figwheel-meta) "\n"
                     (puget/pprint-str configuration)
                     "\n\n;; " gen-comment))
@@ -114,7 +115,9 @@ clojure -A:dev
 (defn generate-prod-cljs []
   (cli/print-op "ClojureScript Production Configuration")
   (let [file (io/as-file "prod.cljs.edn")
-        configuration {:main (symbol (str (-> project/info :id) ".main"))}]
+        configuration {:main (symbol (str (-> project/info :id) ".main"))
+                       :optimizations (-> project/info :browserapp :js-optimizations)
+                       :closure-defines {"goog.DEBUG" false}}]
     (spit file (str (puget/pprint-str configuration)
                     "\n\n;; " gen-comment))
     (cli/print-created-artifact (.getName file))))
