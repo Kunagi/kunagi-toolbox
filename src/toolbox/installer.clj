@@ -75,7 +75,7 @@ sudo systemctl reload nginx
 server {
 
     server_name " vhost ";
-    port 80;
+    listen 80;
 
     location / {
 
