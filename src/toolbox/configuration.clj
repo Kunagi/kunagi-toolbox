@@ -48,9 +48,9 @@
 (defn create-aliases []
   (cond-> {:dev {:extra-paths (into ["target"]
                                     (extra-paths-from-own-deps))
-                 :extra-deps {'com.bhauman/figwheel-main       {:mvn/version "RELEASE"}
-                              'com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
-                              'binaryage/devtools              {:mvn/version "RELEASE"}}
+                 :extra-deps {'com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
+                              'binaryage/devtools              {:mvn/version "RELEASE"}
+                              'day8.re-frame/re-frame-10x      {:mvn/version "RELEASE"}}
                  :main-opts ["--main" "figwheel.main" "--build" "dev"]}
            :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
                      :extra-deps {'deps-ancient {:mvn/version "RELEASE"}}}}
@@ -63,8 +63,12 @@
 (defn generate-deps []
   (cli/print-op "Generate deps.end")
 
-  (let [deps-file (io/as-file "deps.edn")
-        deps {:deps (merge (-> project/info :deps :foreign)
+  (let [default-deps (if (-> project/info :browserapp)
+                      {'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}
+                      {})
+        deps-file (io/as-file "deps.edn")
+        deps {:deps (merge default-deps
+                           (-> project/info :deps :foreign)
                            (create-own-deps))
               :paths (-> project/info :deps :paths)
               :aliases (create-aliases)}]
@@ -104,8 +108,9 @@ clojure -A:dev
                         figwheel-meta)
         configuration {:main (symbol (str (-> project/info :id) ".figwheel-adapter"))
                        :optimizations :none
-                       :preloads ['devtools.preload]
-                       :closure-defines {}}]
+                       :preloads ['devtools.preload
+                                  'day8.re-frame-10x.preload]
+                       :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}}]
     (spit file (str "^" (puget/pprint-str figwheel-meta) "\n"
                     (puget/pprint-str configuration)
                     "\n\n;; " gen-comment))
