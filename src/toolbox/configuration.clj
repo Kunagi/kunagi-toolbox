@@ -37,7 +37,7 @@
    deps))
 
 
-(defn extra-paths-from-own-deps []
+(defn paths-from-own-deps []
   (sort
    (map
     (fn [lib]
@@ -46,19 +46,21 @@
 
 
 (defn create-aliases []
-  (cond-> {:dev {:extra-paths (into ["target"]
-                                    (extra-paths-from-own-deps))
-                 :extra-deps {'com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
-                              'binaryage/devtools              {:mvn/version "RELEASE"}
-                              'day8.re-frame/re-frame-10x      {:mvn/version "RELEASE"}}
+  (cond-> {:dev {
+                 ;; :extra-paths (into ["target"]
+                 ;;                    (paths-from-own-deps))
+                 ;; :extra-deps {}
+                              ;; 'com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
+                              ;; 'binaryage/devtools              {:mvn/version "RELEASE"}
+                              ;; 'day8.re-frame/re-frame-10x      {:mvn/version "RELEASE"}}
                  :main-opts ["--main" "figwheel.main" "--build" "dev"]}
            :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
                      :extra-deps {'deps-ancient {:mvn/version "RELEASE"}}}}
 
           (-> project/info :browserapp)
           (assoc :prod-js {:main-opts ["--main"          "figwheel.main"
-                                       "--build-once"    "prod"]
-                           :extra-deps {'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}})))
+                                       "--build-once"    "prod"]})))
+                           ;;:extra-deps {'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}})))
 
 (defn generate-deps []
   (cli/print-op "Generate deps.end")
@@ -70,7 +72,9 @@
         deps {:deps (merge default-deps
                            (-> project/info :deps :foreign)
                            (create-own-deps))
-              :paths (-> project/info :deps :paths)
+              :paths (-> ["target"]
+                         (into (-> project/info :deps :paths))
+                         (into (paths-from-own-deps)))
               :aliases (create-aliases)}]
 
 
@@ -97,9 +101,10 @@ clojure -A:dev
   (cli/print-op "ClojureScript Development Configuration")
   (let [file (io/as-file "dev.cljs.edn")
         figwheel-meta {:watch-dirs (into ["src"]
-                                         (extra-paths-from-own-deps))}
-                       ;;:open-file-command "emacsclient"}
-                       ;;:launch-js ["google-chrome" :open-url]}
+                                         (paths-from-own-deps))
+                       :open-file-command "emacsclient"
+                       :launch-js ["google-chrome" :open-url]}
+
         figwheel-meta (if (-> project/info :serverapp)
                         (assoc figwheel-meta
                                :ring-handler
