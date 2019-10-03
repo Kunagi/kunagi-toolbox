@@ -27,7 +27,7 @@
   [path]
   (println)
   (print " -> ")
-  (println (c/on-green (c/white (str " " path " ")))))
+  (println (c/on-magenta (c/white (str " " path " ")))))
 
 
 (defn print-info
