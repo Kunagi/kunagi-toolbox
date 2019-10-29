@@ -3,10 +3,8 @@
    [clojure.java.io :as io]
    [puget.printer :as puget]
 
-   [toolbox.target :as target]
    [toolbox.cli :as cli]
-   [toolbox.project :as project]
-   [toolbox.systemd :as systemd]))
+   [toolbox.project :as project]))
 
 
 (defn target-path-installer []

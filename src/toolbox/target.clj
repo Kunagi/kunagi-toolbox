@@ -2,10 +2,7 @@
   (:require
    [clojure.java.io :as io]
 
-   [mach.pack.alpha.capsule :as capsule]
-
-   [toolbox.cli :as cli]
-   [toolbox.project :as project]))
+   [toolbox.cli :as cli]))
 
 
 (defn delete-file [file]

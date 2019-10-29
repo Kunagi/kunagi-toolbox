@@ -2,7 +2,10 @@
   (:require
    [clojure.java.io :as io]
    [clojure.edn :as edn]
+   [clojure.java.shell :as shell]
+
    [puget.printer :as puget]
+   [cheshire.core :as cheshire]
 
    [toolbox.cli :as cli]
    [toolbox.project :as project]))
@@ -46,33 +49,40 @@
 
 
 (defn create-aliases []
-  (cond-> {:dev {
+  (cond-> {
+           :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
+                     :extra-deps {'deps-ancient {:mvn/version "RELEASE"}}}}
+
+                 ;;:dev {
                  ;; :extra-paths (into ["target"]
                  ;;                    (paths-from-own-deps))
                  ;; :extra-deps {}
                               ;; 'com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
                               ;; 'binaryage/devtools              {:mvn/version "RELEASE"}
                               ;; 'day8.re-frame/re-frame-10x      {:mvn/version "RELEASE"}}
-                 :main-opts ["--main" "figwheel.main" "--build" "dev"]}
-           :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
-                     :extra-deps {'deps-ancient {:mvn/version "RELEASE"}}}}
+                 ;; :main-opts ["--main" "figwheel.main" "--build" "dev"]}
 
-          (-> project/info :browserapp)
-          (assoc :prod-js {:main-opts ["--main"          "figwheel.main"
-                                       "--build-once"    "prod"]})))
+    true
+    (assoc :kunagi-toolbox
+           {:extra-deps {'kunagi-toolbox {:local/root "../kunagi-toolbox"}}
+            :main-opts ["--main" "toolbox.main"]})))
+
+          ;; (-> project/info :browserapp)))
+          ;; (assoc :prod-js {:main-opts ["--main"          "figwheel.main"
+          ;;                              "--build-once"    "prod"]})))
                            ;;:extra-deps {'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}})))
 
 (defn generate-deps []
   (cli/print-op "Generate deps.end")
 
   (let [default-deps (if (-> project/info :browserapp)
-                      {'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}
+                      {} ;;{'com.bhauman/figwheel-main {:mvn/version "RELEASE"}}
                       {})
         deps-file (io/as-file "deps.edn")
         deps {:deps (merge default-deps
                            (-> project/info :deps :foreign)
                            (create-own-deps))
-              :paths (-> ["target"]
+              :paths (-> [];;"target"]
                          (into (-> project/info :deps :paths))
                          (into (paths-from-own-deps)))
               :aliases (create-aliases)}]
@@ -113,6 +123,9 @@ clojure -A:dev
                         figwheel-meta)
         configuration {:main (symbol (str (-> project/info :id) ".figwheel-adapter"))
                        :optimizations :none
+                       :output-to "resources/public/cljs-out/dev-main.js"
+                       :output-dir "resources/public/cljs-out/dev"
+                       :asset-path "/cljs-out/dev"
                        :preloads ['devtools.preload
                                   'day8.re-frame-10x.preload]
                        :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}}]
@@ -133,8 +146,62 @@ clojure -A:dev
     (cli/print-created-artifact (.getName file))))
 
 
+(defn generate-package-json []
+  (cli/print-op "NPM Configuration")
+  (let [file (io/as-file "package.json")
+        m {"name" (-> project/info :id),
+           "version" (or (-> project/info :release :version) "1.0.0")
+           "description" (or (-> project/info :project :description) (-> project/info :id)),
+           "private" true
+           "license" (or (-> project/info :project :license :name) "none")
+           "dependencies" ;; FIXME get dependencies from own-dependencies
+           {"@material-ui/core" "^4.5.2"
+            "@material-ui/icons" "^4.5.1"
+            "highlight.js" "9.15.10"
+            "react" "^16.11.0"
+            "react-dom" "^16.11.0"
+            "react-flip-move" "3.0.3"
+            "react-highlight.js" "1.0.7"}}
+        json (cheshire/generate-string m {:pretty true})]
+    (spit file json)
+    (cli/print-created-artifact (.getName file))))
+
+
+(defn generate-shadow-cljs-edn []
+  (cli/print-op "Shadow-CLJS Configuration")
+  (let [file (io/as-file "shadow-cljs.edn")
+        id (-> project/info :id)
+        configuration {:deps true
+                       :builds
+                       {:browserapp
+                        {:output-dir "target/public/"
+                         :asset-path "/"
+                         :target :browser
+                         :modules {:main {:init-fn (symbol (str id ".main/init"))}}
+                         :compiler-options {:infer-externs :auto
+                                            :externs ["datascript/externs.js"]} ;; FIXME
+                         :devtools {:after-load (symbol (str id ".main/shadow-after-load"))}}}}]
+    (spit file (str (puget/pprint-str configuration)
+                    "\n\n;; " gen-comment))
+    (cli/print-created-artifact (.getName file))))
+
+
+(defn npm-install []
+  (cli/print-op "NPM install")
+  (let [result (shell/sh "npm" "install")]
+    (println)
+    (println (:out result))
+    (println (:err result))
+    (if-not (= 0 (:exit result))
+      (cli/abort-with-failure))))
+
+
 (defn configure! []
   (generate-deps)
-  (generate-dev)
-  (generate-dev-cljs)
-  (generate-prod-cljs))
+  (when (-> project/info :browserapp)
+    (generate-package-json)
+    (generate-shadow-cljs-edn)
+    (npm-install)))
+  ;; (generate-dev)
+  ;; (generate-dev-cljs)
+  ;; (generate-prod-cljs))
