@@ -9,7 +9,8 @@
    [toolbox.uberjar :as uberjar]
    [toolbox.systemd :as systemd]
    [toolbox.installer :as installer]
-   [toolbox.release :as release]))
+   [toolbox.release :as release]
+   [toolbox.sync :as sync]))
 
 
 (defn info! []
@@ -22,6 +23,10 @@
 
 (defn clean! []
   (target/clean!))
+
+
+(defn sync! []
+  (sync/sync!))
 
 
 (defn build! []
@@ -51,7 +56,7 @@
 
 
 (defn usage [options-summary]
-  (->> ["Kunagi Developer Toolbox"
+  (->> ["Kunagi Toolbox"
         ""
         "Usage: kunagi-toolbox [options] action"
         ""
@@ -62,6 +67,7 @@
         "  info        Show project information"
         "  configure   Generate project configuration"
         "  clean       Delete target and .cpcache"
+        "  sync        Synchronize git repositories of dependent projects"
         "  build       Build project artifacts"
         "  release     Build and release project artifacts"
         ""
@@ -84,7 +90,7 @@
       {:exit-message (error-msg errors)}
       ;; custom validation on arguments
       (and (= 1 (count arguments))
-           (#{"info" "configure" "clean" "build" "release"} (first arguments)))
+           (#{"info" "configure" "clean" "sync" "build" "release"} (first arguments)))
       {:action (first arguments) :options options}
       :else ; failed custom validation => exit with usage summary
       {:exit-message (usage summary)})))
@@ -104,6 +110,7 @@
           "info" (info!)
           "configure" (configure!)
           "clean" (clean!)
+          "sync" (sync!)
           "build" (build!)
           "release" (release!))
         (System/exit 0)

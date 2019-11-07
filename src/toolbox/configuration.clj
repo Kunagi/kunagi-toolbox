@@ -44,8 +44,12 @@
   (sort
    (map
     (fn [lib]
-      (str "../" (name lib) "/src"))
+      (str "../" (name lib)))
     (collect-deps-from-local-projects (-> project/info :deps :own)))))
+
+
+(defn src-paths-from-own-deps []
+  (map #(str % "/src") (paths-from-own-deps)))
 
 
 (defn create-aliases []
@@ -55,7 +59,7 @@
 
                  ;;:dev {
                  ;; :extra-paths (into ["target"]
-                 ;;                    (paths-from-own-deps))
+                 ;;                    (src-paths-from-own-deps))
                  ;; :extra-deps {}
                               ;; 'com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
                               ;; 'binaryage/devtools              {:mvn/version "RELEASE"}
@@ -84,7 +88,7 @@
                            (create-own-deps))
               :paths (-> [];;"target"]
                          (into (-> project/info :deps :paths))
-                         (into (paths-from-own-deps)))
+                         (into (src-paths-from-own-deps)))
               :aliases (create-aliases)}]
 
 
@@ -111,7 +115,7 @@ clojure -A:dev
   (cli/print-op "ClojureScript Development Configuration")
   (let [file (io/as-file "dev.cljs.edn")
         figwheel-meta {:watch-dirs (into ["src"]
-                                         (paths-from-own-deps))
+                                         (src-paths-from-own-deps))
                        :open-file-command "emacsclient"
                        :launch-js ["google-chrome" :open-url]}
 
