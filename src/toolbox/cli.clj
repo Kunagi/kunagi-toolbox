@@ -23,6 +23,19 @@
   (println))
 
 
+(defn print-wrn
+  [& args]
+  (println)
+  (print " ")
+  (print
+   (c/on-yellow (c/grey (str " warning "))))
+  (print " ")
+  (doseq [arg args]
+    (print arg))
+  (println))
+
+
+
 (defn print-created-artifact
   [path]
   (println)
