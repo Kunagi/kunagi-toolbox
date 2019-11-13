@@ -33,6 +33,7 @@
 
 (defn sync! []
   (let [paths (configuration/paths-from-own-deps)
-        dirs (map #(-> % io/as-file .getAbsoluteFile) paths)]
+        paths (conj paths ".")
+        dirs (map #(-> % io/as-file .getAbsoluteFile .getCanonicalFile) paths)]
     (doseq [dir dirs]
       (check-status dir))))
