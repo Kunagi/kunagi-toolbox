@@ -27,11 +27,18 @@
 (defn build-with-shadow []
   (cli/print-op "Shadow-CLJS JavaScript Compilation")
 
-  (let [debug-build? (-> project/info :browserapp :debug-build?)]
-    (when debug-build?
-      (cli/print-wrn "--debug"))
-    (let [args ["shadow-cljs" "release" "browserapp"]
-          args (if debug-build?
+  (let [browserapp (-> project/info :browserapp)
+        release? (if (contains? browserapp :shadow-cljs/release?)
+                   (-> browserapp :shadow-cljs/release?)
+                   true)
+        debug? (-> project/info :browserapp :shadow-cljs/debug?)]
+
+    (when-not release?
+      (cli/print-wrn ":shadow-cljs/release? -> false"))
+    (when debug?
+      (cli/print-wrn ":shadow-cljs/debug? -> true"))
+    (let [args ["shadow-cljs" (if release? "release" "compile") "browserapp"]
+          args (if debug?
                  (conj args "--debug")
                  args)
           result (apply shell/sh args)]

@@ -87,8 +87,8 @@
                            (-> project/info :deps :foreign)
                            (create-own-deps))
               :paths (-> [];;"target"]
-                         (into (-> project/info :deps :paths))
-                         (into (src-paths-from-own-deps)))
+                         (into (-> project/info :deps :paths)))
+                         ;;(into (src-paths-from-own-deps)))
               :aliases (create-aliases)}]
 
 
@@ -184,7 +184,9 @@ clojure -A:dev
                          :modules {:main {:init-fn (symbol (str id ".main/init"))}}
                          :compiler-options {:infer-externs :auto
                                             :externs ["datascript/externs.js"]} ;; FIXME
-                         :devtools {:after-load (symbol (str id ".main/shadow-after-load"))}}}}]
+                         :devtools {:preloads '[kunagi-base-browserapp.modules.devtools.model
+                                                shadow.remote.runtime.cljs.browser]
+                                    :after-load (symbol (str id ".main/shadow-after-load"))}}}}]
     (spit file (str (puget/pprint-str configuration)
                     "\n\n;; " gen-comment))
     (cli/print-created-artifact (.getName file))))
