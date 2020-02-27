@@ -45,8 +45,7 @@
 (defn release! []
   (cli/print-op "Release")
 
-  (let [id (:id project/info)
-        executable-name (:or (-> project/info :commandapp :executable-name)
+  (let [executable-name (:or (-> project/info :commandapp :executable-name)
                              (-> project/info :serverapp :executable-name))]
 
     (copy-target executable-name

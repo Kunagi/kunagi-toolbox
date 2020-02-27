@@ -5,6 +5,7 @@
    [toolbox.project :as project]
    [toolbox.configuration :as configuration]
    [toolbox.target :as target]
+   [toolbox.prepare :as prepare]
    [toolbox.browserapp :as browserapp]
    [toolbox.uberjar :as uberjar]
    [toolbox.systemd :as systemd]
@@ -31,6 +32,7 @@
 
 (defn build! []
   (clean!)
+  (prepare/prepare!)
   (when (:browserapp project/info)
     (browserapp/build-browserapp!))
   (uberjar/build-uberjar!)
