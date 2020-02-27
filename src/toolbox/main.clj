@@ -30,9 +30,13 @@
   (sync/sync!))
 
 
-(defn build! []
+(defn prepare! []
   (clean!)
-  (prepare/prepare!)
+  (prepare/prepare!))
+
+
+(defn build! []
+  (prepare!)
   (when (:browserapp project/info)
     (browserapp/build-browserapp!))
   (uberjar/build-uberjar!)
@@ -92,7 +96,7 @@
       {:exit-message (error-msg errors)}
       ;; custom validation on arguments
       (and (= 1 (count arguments))
-           (#{"info" "configure" "clean" "sync" "build" "release"} (first arguments)))
+           (#{"info" "configure" "clean" "sync" "prepare" "build" "release"} (first arguments)))
       {:action (first arguments) :options options}
       :else ; failed custom validation => exit with usage summary
       {:exit-message (usage summary)})))
@@ -113,6 +117,7 @@
           "configure" (configure!)
           "clean" (clean!)
           "sync" (sync!)
+          "prepare" (prepare!)
           "build" (build!)
           "release" (release!))
         (System/exit 0)
