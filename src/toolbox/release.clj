@@ -1,6 +1,8 @@
 (ns toolbox.release
   (:require
    [clojure.java.io :as io]
+   [clojure.edn :as edn]
+   [puget.printer :as puget]
 
    [toolbox.target :as target]
    [toolbox.cli :as cli]
@@ -42,6 +44,16 @@
     (cli/print-created-artifact dst-path)))
 
 
+(defn- bump-minor []
+  (let [file (str "conf/release.edn")
+        data (-> file slurp edn/read-string)
+        minor (get data :minor 0)
+        minor (inc minor)
+        data (assoc data :minor minor)]
+    (spit file (puget/pprint-str data))
+    (cli/print-created-artifact file)))
+
+
 (defn release! []
   (cli/print-op "Release")
 
@@ -63,4 +75,6 @@
     (copy-dir "configs")
 
     (copy-target "install.bsh"
-                 "install.bsh")))
+                 "install.bsh")
+
+    (bump-minor)))
