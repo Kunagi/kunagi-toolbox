@@ -1,4 +1,4 @@
-{:own []
+{:own [kunagi/datenschutzerklaerung]
  :foreign {
            org.clojure/clojure       {:mvn/version "RELEASE"}
            org.clojure/tools.cli     {:mvn/version "RELEASE"}

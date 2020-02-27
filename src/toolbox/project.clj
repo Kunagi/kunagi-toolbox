@@ -143,6 +143,7 @@
       (load-conf :systemd [])
       (complete-systemd)
       (load-conf :release [])
+      (load-conf :legal [])
       (load-conf :deps [:own :foreign])
       (complete-deps)))
 

@@ -4,6 +4,7 @@
                             :main-opts ["--main" "toolbox.main"]}},
  :deps {cheshire {:mvn/version "RELEASE"},
         clojure-term-colors {:mvn/version "RELEASE"},
+        kunagi/datenschutzerklaerung {:local/root "../datenschutzerklaerung"},
         mvxcvi/puget {:mvn/version "RELEASE"},
         org.clojure/clojure {:mvn/version "RELEASE"},
         org.clojure/tools.cli {:mvn/version "RELEASE"},
