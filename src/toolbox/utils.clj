@@ -1,6 +1,7 @@
 (ns toolbox.utils
   (:require
    [clojure.string :as string]
+   [clojure.java.io :as io]
    [puget.printer :as puget]))
 
 
@@ -9,6 +10,34 @@
 
 (defn pprint [data]
   (puget/pprint-str data))
+
+
+(defn as-js-array-of-strings [items]
+  (->> items
+       (map (fn [item] (str "\"" item "\"")))
+       (string/join ", ")))
+
+
+(defn as-js-array-of-regexes [items]
+  (->> items
+       (map (fn [item]
+              (str "/"
+                   (-> item
+                       (.replace "/" "\\/"))
+                   "/")))
+       (string/join ", ")))
+
+
+(defn list-paths [root-dir dir]
+  (->> (str root-dir "/" dir)
+       (java.io.File.)
+       .list
+       (map (fn [file] (str dir "/" file)))))
+
+
+(defn load-string-resource [path]
+  (when-let [uri (io/resource path)]
+    (slurp uri)))
 
 
 (defn write-clojure-file [dir namespace suffix contents]
