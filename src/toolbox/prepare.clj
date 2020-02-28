@@ -21,6 +21,7 @@
                                       [(list 'def 'appinfo appinfo)])]
       (cli/print-created-artifact file))))
 
+
 (defn- create-datenschutzerklaerung-cljc []
   (when-let [dseb (-> project/info :legal :datenschutzerklaerung-bausteine)]
     (when-let [file (utils/write-cljc
@@ -56,12 +57,41 @@
                             "$CACHE_FIRST"
                             (utils/as-js-array-of-regexes cache-first))
           file "resources/public/serviceworker.js"]
+      (utils/mkdir-for-file file)
       (spit file sw-code)
       (cli/print-created-artifact file))))
+
+
+(defn- create-manifest []
+  (when-let [browserapp (-> project/info :browserapp)]
+    (let [colors (-> browserapp :colors)
+          related-apps (-> browserapp :related-apps)
+          data {:short_name (-> project/info :id)
+                :name (-> project/info :project :name)
+                :icons [{:src "/img/app-icon_192.png"
+                         :type "image/png"
+                         :sizes "192x192"}
+                        {:src "/img/app-icon_512.png"
+                         :type "image/png"
+                         :sizes "512x512"}]
+                :start_url "/ui/?utm_source=a2hs"
+                :scope "/"
+                :display :standalone
+                :theme_color (get colors :primary "#000000")
+                :background_color (get colors :background "#E1E2E1")
+                :prefer_related_applications (boolean (seq related-apps))
+                :related_applications (map (fn [[platform id]]
+                                             {:platform platform
+                                              :id id})
+                                           related-apps)}
+          file (str "resources/public/manifest.json")]
+     (utils/write-json file data)
+     (cli/print-created-artifact file))))
 
 
 (defn prepare! []
   (cli/print-op "Prepare")
   (create-appinfo-cljc)
   (create-datenschutzerklaerung-cljc)
+  (create-manifest)
   (create-serviceworker))
