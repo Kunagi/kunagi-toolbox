@@ -66,7 +66,7 @@
   (when-let [browserapp (-> project/info :browserapp)]
     (let [colors (-> browserapp :colors)
           related-apps (-> browserapp :related-apps)
-          data {:short_name (-> project/info :id)
+          data {:short_name (-> project/info :project :name)
                 :name (-> project/info :project :name)
                 :icons [{:src "/img/app-icon_192.png"
                          :type "image/png"
