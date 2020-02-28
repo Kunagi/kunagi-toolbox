@@ -1,15 +1,14 @@
-// https://gist.github.com/ngokevin/7eb03d90987c0ed03b873530c3b4c53c
 
 var BASE_URL = $BASE_URL;
-var VERSION = $VERSION;
+var VERSION = "9.$VERSION";
 
 var PRE_CACHE = [
     // paths
-    '/ui/',
-    '/main.js',
-    '/manifest.json',
-    '/favicon.ico',
-    '/favicon.png',
+    BASE_URL + '/ui/',
+    BASE_URL + '/main.js',
+    BASE_URL + '/manifest.json',
+    BASE_URL + '/favicon.ico',
+    BASE_URL + '/favicon.png',
     $PRE_CACHE
 ];
 
@@ -44,12 +43,12 @@ function matchesAnyPattern(s, patterns) {
     return false;
 }
 
-function strategyForPath(path) {
-    if (PRE_CACHE.indexOf(path) > -1) {
+function strategyForUrl(url) {
+    if (PRE_CACHE.indexOf(url) > -1) {
         return cacheElseNetwork;
     }
 
-    if (matchesAnyPattern(path, CACHE_FIRST)) {
+    if (matchesAnyPattern(url, CACHE_FIRST)) {
         return cacheElseNetwork;
     }
 
@@ -59,62 +58,113 @@ function strategyForPath(path) {
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
-    var path = event.request.url;
-    var sepIdx = path.indexOf('/', 9);
+    if (!event.request.url.startsWith('https://')) return;
 
-    if (sepIdx > -1) {
-        var baseUrl = path.substring(0, sepIdx);
-        if (baseUrl === BASE_URL) path = path.substring(sepIdx);
+    if (event.request.url === BASE_URL + '/') {
+        //console.log("SW fetch", event.request.url, "-> redirect to /ui/");
+        event.respondWith(function () {
+            return new Response('Server Request Failed', {
+                status: 301,
+                statusText: 'UI is at /ui/',
+                headers: new Headers({
+                    "Location": "/ui/"
+                })
+            });
+        });
+        return;
     }
 
-    if (matchesAnyPattern(path, NO_CACHE)) {
-        console.log("SW fetch", path, "-> matches NO_CACHE");
+    // var path = event.request.url;
+    // var sepIdx = path.indexOf('/', 9);
+
+    // if (sepIdx > -1) {
+    //     var baseUrl = path.substring(0, sepIdx);
+    //     if (baseUrl === BASE_URL) path = path.substring(sepIdx);
+    // }
+
+    if (matchesAnyPattern(event.request.url, NO_CACHE)) {
+        //console.log("SW fetch", event.request.url, "-> matches NO_CACHE");
         event.respondWith(fetch(event.request));
         return;
     }
 
-    var f = strategyForPath(path);
-    console.log("SW fetch", path, "->", f);
-    event.respondWith(f(event));
+    var f = strategyForUrl(event.request.url);
+    //console.log("SW fetch", event.request.url, "->", f);
+    event.respondWith(f(event.request));
 });
 
 
-// If cache else network.
-// For images and assets that are not critical to be fully up-to-date.
-// developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook/
-// #cache-falling-back-to-network
-function cacheElseNetwork(event) {
-    return caches.match(event.request).then(response => {
-        function fetchAndCache() {
-            return fetch(event.request).then(response => {
-                // Update cache.
-                caches.open(NAME).then(cache => cache.put(event.request, response.clone()));
-                return response.clone();
-            });
-        }
-
-        // If not exist in cache, fetch.
-        if (!response) {
-            return fetchAndCache();
-        }
-
-        // If exists in cache, return from cache while updating cache in background.
-        fetchAndCache();
-        return response;
+function putToCache(request, response) {
+    caches.open(NAME).then(function(cache) {
+        cache.put(request, response);
     });
 }
 
-// If network else cache.
-// For assets we prefer to be up-to-date (i.e., JavaScript file).
-function networkElseCache(event) {
-    return caches.match(event.request).then(match => {
-        if (!match) {
-            return fetch(event.request);
-        }
-        return fetch(event.request).then(response => {
-            // Update cache.
-            caches.open(NAME).then(cache => cache.put(event.request, response.clone()));
-            return response.clone();
-        }) || response;
+function fetchAndCache(request) {
+    return fetch(request)
+        .then(function(response) {
+            if (response.ok) putToCache(request, response.clone());
+            return response;
+        }, offlineResponse)
+        .catch(offlineResponse);
+}
+
+function cacheElseNetwork(request) {
+    return caches.match(request)
+        .then(function(responseFromCache) {
+            if (responseFromCache) {
+                // cache hit
+                fetchAndCache(request);
+                return responseFromCache;
+            } else {
+                // cache miss
+                return fetchAndCache(request);
+            }
+        });
+}
+
+function networkElseCache(request) {
+    return fetch(request)
+        .then(function(responseFromRemote) {
+            if (responseFromRemote.ok) putToCache(request, responseFromRemote.clone());
+            return responseFromRemote;
+        }, function() {return getFromCache(request);})
+        .catch(function() {return getFromCache(request);});
+}
+
+function getFromCache(request) {
+    return caches.match(request)
+        .then(function(responseFromCache) {
+            if (responseFromCache) {
+                // cache hit
+                return responseFromCache;
+            } else {
+                // cache miss
+                return offlineResponse();
+            }
+        });
+}
+
+function offlineResponse() {
+    return new Response('Server Request Failed', {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: new Headers({
+            'Content-Type': 'text/html'
+        })
     });
 }
+
+
+this.addEventListener('activate', function(event) {
+    event.waitUntil(
+        caches.keys().then(function(keyList) {
+            return Promise.all(keyList.map(function(key) {
+                if (key !== NAME) {
+                    return caches.delete(key);
+                }
+                return null;
+            }));
+        })
+    );
+});

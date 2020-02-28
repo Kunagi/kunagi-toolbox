@@ -52,7 +52,7 @@
           sw-code (.replace sw-code
                             "$PRE_CACHE"
                             (utils/as-js-array-of-strings
-                             (map #(str "/" %) pre-cache)))
+                             (map #(str base-url "/" %) pre-cache)))
           sw-code (.replace sw-code
                             "$NO_CACHE"
                             (utils/as-js-array-of-regexes no-cache))
