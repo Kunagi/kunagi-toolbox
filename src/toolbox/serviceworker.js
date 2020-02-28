@@ -60,6 +60,7 @@ self.addEventListener('fetch', event => {
 
     if (!event.request.url.startsWith('https://')) return;
 
+    /*
     if (event.request.url === BASE_URL + '/') {
         //console.log("SW fetch", event.request.url, "-> redirect to /ui/");
         event.respondWith(function () {
@@ -73,6 +74,7 @@ self.addEventListener('fetch', event => {
         });
         return;
     }
+    */
 
     // var path = event.request.url;
     // var sepIdx = path.indexOf('/', 9);
