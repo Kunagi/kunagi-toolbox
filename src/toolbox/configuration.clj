@@ -187,7 +187,7 @@ clojure -A:dev
                                                 shadow.remote.runtime.cljs.browser]
                                     :after-load (symbol (str id ".main/shadow-after-load"))}}}}]
     (spit file (str (puget/pprint-str configuration)
-                    "\n\n;; " utils/gen-comment))
+                    "\n\n;; " utils/gen-comment "\n"))
     (cli/print-created-artifact (.getName file))))
 
 

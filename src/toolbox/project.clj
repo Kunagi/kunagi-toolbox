@@ -118,9 +118,7 @@
 (defn complete-deps [info]
   (let [deps (:deps info)
         paths (or (:paths deps)
-                  (if (-> "resources" java.io.File. .exists)
-                    ["src" "resources"]
-                    ["src"]))
+                  ["src" "resources"])
         foreign (complete-foreign-deps (:foreign deps) info)
         own (:own deps)]
     (-> info

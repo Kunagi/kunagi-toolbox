@@ -61,7 +61,8 @@
                          (pprint content)))
                   (string/join "\n\n"))
         code (str ";; " gen-comment "\n\n"
-                  code)]
+                  code
+                  "\n")]
     (mkdir-for-file file)
     (spit file code)
     file))
@@ -74,5 +75,7 @@
 (defn write-json [file data]
   (mkdir-for-file file)
   (spit file
-        (cheshire/generate-string data
-                                  {:pretty true})))
+        (str
+         (cheshire/generate-string data
+                                   {:pretty true})
+         "\n")))
