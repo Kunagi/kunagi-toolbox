@@ -2,6 +2,8 @@
 var BASE_URL = $BASE_URL;
 var VERSION = "9.$VERSION";
 
+var CACHING_DISABLED = $CACHING_DISABLED;
+
 var PRE_CACHE = [
     // paths
     BASE_URL + '/ui/',
@@ -28,6 +30,7 @@ var CACHE_FIRST = [
 var NAME = 'serviceworker_cache_' + VERSION;
 
 self.addEventListener('install', event => {
+    if (CACHING_DISABLED) return;
     event.waitUntil(
         caches.open(NAME).then(cache => {
             return cache.addAll(PRE_CACHE);
@@ -55,7 +58,7 @@ function strategyForUrl(url) {
     return networkElseCache;
 }
 
-self.addEventListener('fetch', event => {
+if (!CACHING_DISABLED) self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
     if (!event.request.url.startsWith('https://')) return;
@@ -159,6 +162,7 @@ function offlineResponse() {
 
 
 this.addEventListener('activate', function(event) {
+    if (CACHING_DISABLED) return;
     event.waitUntil(
         caches.keys().then(function(keyList) {
             return Promise.all(keyList.map(function(key) {

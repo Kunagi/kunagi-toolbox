@@ -42,9 +42,12 @@
                      (utils/list-paths "resources/public" "img"))
           no-cache (-> sw :no-cache)
           cache-first (-> sw :cache-first)
+          caching-disabled? (-> sw :caching-disabled?)
           base-url (str "https://" (-> project/info :serverapp :vhost))
           sw-code (utils/load-string-resource "toolbox/serviceworker.js")
           sw-code (str "// " utils/gen-comment "\n\n" sw-code)
+          sw-code (.replace sw-code
+                            "$CACHING_DISABLED" (if caching-disabled? "true" "false"))
           sw-code (.replace sw-code "$BASE_URL" (str "\"" base-url "\""))
           sw-code (.replace sw-code
                             "$VERSION"
