@@ -176,3 +176,17 @@ this.addEventListener('activate', function(event) {
         })
     );
 });
+
+
+this.addEventListener('notificationclick', function(event) {
+    console.log("SW notificationclick", event);
+    event.notification.close();
+    if (event.action === 'show-ui') {
+        clients.openWindow('/ui');
+        return;
+    }
+    if (event.action.startsWith('show:')) {
+        clients.openWindow(event.action.substring(5));
+        return;
+    }
+}, false);
