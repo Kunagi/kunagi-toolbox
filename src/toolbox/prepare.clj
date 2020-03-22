@@ -69,6 +69,7 @@
   (when-let [browserapp (-> project/info :browserapp)]
     (let [colors (-> browserapp :colors)
           related-apps (-> browserapp :related-apps)
+          notifications? (-> browserapp :notifications?)
           data {:short_name (-> project/info :project :name)
                 :name (-> project/info :project :name)
                 :icons [{:src "/img/app-icon_192.png"
@@ -86,7 +87,9 @@
                 :related_applications (map (fn [[platform id]]
                                              {:platform platform
                                               :id id})
-                                           related-apps)}
+                                           related-apps)
+                :permissions (cond-> []
+                                     notifications? (conj :notifications))}
           file (str "resources/public/manifest.json")]
      (utils/write-json file data)
      (cli/print-created-artifact file))))

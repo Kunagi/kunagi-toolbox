@@ -15,7 +15,7 @@
 
 (defn as-js-array-of-strings [items]
   (->> items
-       (map (fn [item] (str "\"" item "\"")))
+       (map (fn [item] (str "\n\"" item "\"")))
        (string/join ", ")))
 
 
