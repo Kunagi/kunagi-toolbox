@@ -30,6 +30,7 @@ var CACHE_FIRST = [
 var NAME = 'serviceworker_cache_' + VERSION;
 
 self.addEventListener('install', event => {
+    console.log("SW install", event);
     if (CACHING_DISABLED) return;
     event.waitUntil(
         caches.open(NAME).then(cache => {
@@ -162,6 +163,7 @@ function offlineResponse() {
 
 
 this.addEventListener('activate', function(event) {
+    console.log("SW activate", event);
     if (CACHING_DISABLED) return;
     event.waitUntil(
         caches.keys().then(function(keyList) {
