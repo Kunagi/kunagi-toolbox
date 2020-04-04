@@ -70,18 +70,38 @@ sudo systemctl reload nginx
         path (str "target/nginx-vhost")
         file (io/as-file path)
         content (str "
+
+server {
+
+    server_name " vhost ";
+    listen 443 ssl;
+
+    location / {
+
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection \"Upgrade\";
+
+        proxy_pass http://localhost:" port ";
+    }
+
+    location /nginx_status {
+        stub_status on;
+        allow 127.0.0.1;
+        deny all;
+    }
+
+}
+
 server {
 
     server_name " vhost ";
     listen 80;
+    listen [::]:80;
 
-    location / {
-
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_pass http://localhost:" port ";
-
-    }
+    return 301 https://$host$request_uri;
 
 }
 ")]
