@@ -158,13 +158,10 @@ clojure -A:dev
            "private" true
            "license" (or (-> project/info :project :license :name) "none")
            "dependencies" ;; FIXME get dependencies from own-dependencies
-           {"@material-ui/core" "^4.7.1"
-            "@material-ui/icons" "^4.5.1"
-            "highlight.js" "9.15.10"
-            "react" "^16.12.0"
-            "react-dom" "^16.12.0"
-            "react-flip-move" "3.0.3"
-            "react-highlight.js" "1.0.7"}}
+           {"@material-ui/core"          "^4.9.9"
+            "@material-ui/icons"         "^4.9.1"
+            "react"                      "^16.13.1"
+            "react-dom"                  "^16.13.1"}} ;; FIXME read from conf/deps.edn
         json (cheshire/generate-string m {:pretty true})]
     (spit file json)
     (cli/print-created-artifact (.getName file))))
