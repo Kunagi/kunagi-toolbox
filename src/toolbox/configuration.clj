@@ -54,7 +54,10 @@
 (defn create-aliases []
   (cond-> {
            :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
-                     :extra-deps {'deps-ancient {:mvn/version "RELEASE"}}}}
+                     :extra-deps {'deps-ancient {:mvn/version "RELEASE"}}}
+
+           :shadow-cljs {:main-opts ["-m" "shadow.cljs.devtools.cli"]
+                         :extra-deps {'thheller/shadow-cljs {:mvn/version "RELEASE"}}}}
 
                  ;;:dev {
                  ;; :extra-paths (into ["target"]
@@ -182,7 +185,9 @@ clojure -A:dev
                                             :externs ["datascript/externs.js"]} ;; FIXME
                          :devtools {:preloads '[kunagi-base-browserapp.modules.devtools.model
                                                 shadow.remote.runtime.cljs.browser]
-                                    :after-load (symbol (str id ".main/shadow-after-load"))}}}}]
+                                    :after-load (symbol (str id ".main/shadow-after-load"))
+                                    :repl-pprint true}
+                         :dev {:compiler-options {:devcards true}}}}}]
     (spit file (str (puget/pprint-str configuration)
                     "\n\n;; " utils/gen-comment "\n"))
     (cli/print-created-artifact (.getName file))))
